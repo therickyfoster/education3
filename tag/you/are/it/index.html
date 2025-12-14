@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0b1020" />
+<title>Mycelial School | Teacher-Guided AI Projects Hub</title>
+<meta name="description" content="Choose projects from a living mycelial web—built for teachers, students, and public sector stewards. Offline-ready, auditable, and zero-harm by design." />
+
+<style>
+  :root{
+    --bg:#0b1020;
+    --bg2:#0a0f1a;
+    --fg:#e6f1ff;
+    --muted:#9fb3c8;
+    --accent:#78ffd6;
+    --accent2:#a8ff78;
+    --card:#121a30cc;
+    --chip:#1b2442;
+    --ok:#3ddc84;
+    --warn:#ffd166;
+    --err:#ff6b6b;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    color:var(--fg);
+    background: radial-gradient(1200px 800px at 70% -10%, #17223f 0%, var(--bg) 45%, #05070f 100%), #000;
+    font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, Apple Color Emoji, Segoe UI Emoji;
+    overflow-x:hidden;
+  }
+
+  /* Starfield + Mycelial Canvas */
+  #sky,#mycelium{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    z-index:-3;
+    pointer-events:none;
+  }
+  #sky{filter: saturate(1.2) brightness(0.95)}
+  #mycelium{mix-blend-mode: screen; opacity:.65}
+
+  /* Subtle vignette */
+  .vignette{position:fixed; inset:-10vmin; z-index:-2; pointer-events:none;
+    background: radial-gradient(120vmax 80vmax at 50% 55%, transparent 0 60%, rgba(0,0,0,.35) 85%, rgba(0,0,0,.75) 100%);
+  }
+
+  header{
+    position:sticky; top:0; z-index:10;
+    backdrop-filter: blur(12px) saturate(1.15);
+    background: linear-gradient(180deg, rgba(10,15,26,.75), rgba(10,15,26,.35) 70%, transparent);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .bar{
+    display:flex; align-items:center; gap:12px; padding:16px clamp(14px, 3vw, 32px);
+  }
+  .logo{
+    display:grid; place-items:center;
+    width:42px; height:42px; border-radius:50%;
+    background: radial-gradient(circle at 30% 30%, var(--accent2), var(--accent));
+    box-shadow:var(--shadow), 0 0 20px rgba(120,255,214,.35) inset;
+    color:#001a12; font-weight:900;
+  }
+  .title h1{margin:0; font-size:clamp(18px, 2.1vw, 28px); letter-spacing:.3px}
+  .title p{margin:2px 0 0; color:var(--muted); font-size:clamp(12px,1.3vw,14px)}
+  .grow{flex:1}
+
+  .controls{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  }
+  .select, .input, .btn{
+    background:var(--chip); border:1px solid rgba(255,255,255,.12);
+    color:var(--fg); padding:10px 12px; border-radius:12px; outline:none;
+    box-shadow:0 6px 22px rgba(0,0,0,.25) inset;
+  }
+  .select{appearance:none}
+  .btn{
+    cursor:pointer; font-weight:700; letter-spacing:.2px;
+    background: linear-gradient(135deg, #1d2649, #0e1530);
+  }
+  .btn.primary{
+    background:linear-gradient(135deg, var(--accent2), var(--accent));
+    color:#04221a; border-color:transparent;
+    box-shadow:0 6px 24px rgba(120,255,214,.35);
+  }
+  .btn.ghost{background:transparent; border-color: rgba(255,255,255,.2)}
+  .tag{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; font-size:13px; color:var(--muted)
+  }
+
+  main{padding: clamp(14px, 2.2vw, 28px)}
+  .grid{
+    display:grid; gap:16px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .hero{
+    grid-column: 1/-1;
+    display:grid; gap:18px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .panel{
+    grid-column: span 12;
+    background: var(--card);
+    border:1px solid rgba(255,255,255,.1);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(14px, 2vw, 22px);
+  }
+  @media(min-width:960px){
+    .panel.left{grid-column: span 8}
+    .panel.right{grid-column: span 4}
+  }
+
+  .panel h2{margin:0 0 8px; font-size: clamp(18px, 2vw, 22px)}
+  .panel p{margin:.3em 0; color:var(--muted)}
+  .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px}
+
+  /* Cards */
+  .cards{display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))}
+  .card{
+    background: linear-gradient(180deg, #101731cc, #0c1329cc);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px; padding: 16px; box-shadow: var(--shadow);
+    display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden;
+  }
+  .badge{
+    position:absolute; top:10px; right:10px;
+    background:rgba(120,255,214,.18); color:#caffe9; border:1px solid rgba(120,255,214,.35);
+    font-size:12px; padding:4px 8px; border-radius:999px;
+  }
+  .card h3{margin:0; font-size:18px}
+  .card p{margin:0; color:var(--muted)}
+  .meta{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:8px}
+  .meta .tag{background:rgba(255,255,255,.05)}
+
+  .actions{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
+  .actions .btn{padding:8px 10px; font-size:13px}
+
+  /* Drawer / Planner */
+  .drawer{
+    position:fixed; right:18px; bottom:18px; z-index:20;
+    display:grid; gap:10px; width:min(460px, calc(100% - 36px));
+  }
+  .plan{
+    background: linear-gradient(180deg, #0f1630, #0a1127);
+    border:1px solid rgba(255,255,255,.12); border-radius:16px; padding:14px;
+    box-shadow: var(--shadow);
+  }
+  .plan header{position:unset; background:transparent; border:none; backdrop-filter:none}
+  .plan h3{margin:0 0 6px}
+  .plan small{color:var(--muted)}
+  .planlist{display:flex; flex-direction:column; gap:8px; max-height:38vh; overflow:auto; padding-right:4px}
+  .planitem{
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);
+    border-radius:12px; padding:10px; display:flex; justify-content:space-between; gap:10px; align-items:center;
+  }
+  .planitem p{margin:0; font-size:14px}
+  .ghost{opacity:.75}
+
+  /* Collapsible sections */
+  details{
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    border-radius:12px; padding:10px 12px; box-shadow: var(--shadow)
+  }
+  details[open]{background: rgba(120,255,214,.05); border-color: rgba(120,255,214,.25)}
+  details summary{cursor:pointer; font-weight:700}
+
+  footer{
+    margin:22px 0 60px; color:var(--muted); text-align:center; font-size:13px
+  }
+
+  /* Toast */
+  .toast{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:20px; z-index:50; background:#071429e6; border:1px solid rgba(120,255,214,.35);
+    color:var(--fg); padding:10px 14px; border-radius:12px; box-shadow:var(--shadow); display:none;
+  }
+
+  /* Accessibility helpers */
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+</style>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="mycelium" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+
+<header>
+  <div class="bar">
+    <div class="logo" aria-hidden="true">🧬</div>
+    <div class="title">
+      <h1>Mycelial School — Projects Hub for the Next Era of Education</h1>
+      <p>Teacher-guided AI • Student agency • Public-good by default • Offline-ready • Verifiable plans</p>
+    </div>
+    <div class="grow"></div>
+    <div class="controls" role="toolbar" aria-label="Global controls">
+      <select id="role" class="select" title="Audience">
+        <option value="all">🎛️ All Audiences</option>
+        <option value="teacher">🍎 Teachers</option>
+        <option value="student">🎒 Students</option>
+        <option value="gov">🏛️ Public Sector</option>
+      </select>
+      <select id="bg" class="select" title="Background">
+        <option value="constellation">✨ Constellation</option>
+        <option value="mycelium">🌿 Mycelial Web</option>
+        <option value="roots">🌱 Root Lattice</option>
+        <option value="neural">🧠 Neural Weave</option>
+      </select>
+      <input id="search" class="input" placeholder="Search projects (e.g. literacy, safety, offline) — Ctrl/⌘K" />
+      <button id="exportBtn" class="btn">⬇️ Export Plan</button>
+      <button id="printBtn" class="btn ghost">🖨️ Print</button>
+      <button id="resetBtn" class="btn ghost" title="Clear selections">♻️ Reset</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero grid" aria-label="Intro">
+    <div class="panel left">
+      <h2>Choose a path, grow a network 🌐</h2>
+      <p>
+        This hub is a living “mycelial” planner: each project is a nutrient node. Connect a few nodes to grow a full,
+        auditable program—aligned with zero-harm, transparency, and student sovereignty. Everything here is offline-ready
+        and printable, so resilience isn’t an afterthought.
+      </p>
+      <div class="chips" id="quick-filters" aria-label="Quick filters">
+        <div class="tag" data-filter="offline">🗞️ Offline-first</div>
+        <div class="tag" data-filter="safety">🛡️ Safety</div>
+        <div class="tag" data-filter="ai">🤖 Teacher-guided AI</div>
+        <div class="tag" data-filter="assessment">📈 Assessment</div>
+        <div class="tag" data-filter="policy">📜 Policy</div>
+        <div class="tag" data-filter="equity">⚖️ Equity</div>
+      </div>
+    </div>
+
+    <aside class="panel right">
+      <h2>Principles</h2>
+      <p>We treat extraction, secrecy, and delay as obsolete operating systems. Peace, clarity, and regenerative tokenomics are upgrades you can actually deploy in a school week.</p>
+      <details>
+        <summary>🔍 Verifiability</summary>
+        <p>Each project produces artifacts you can timestamp (JSON, PDFs). Keep receipts; earn trust.</p>
+      </details>
+      <details>
+        <summary>🧩 Teacher-guided AI</summary>
+        <p>AI is a copilot—not a driver. Teachers steer, students learn agency, and all prompts are transparent.</p>
+      </details>
+      <details>
+        <summary>🔌 Offline-ready</summary>
+        <p>Service worker + print views + local cache. Schools with spotty internet aren’t left behind.</p>
+      </details>
+    </aside>
+  </section>
+
+  <section aria-label="Project catalog">
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section aria-label="Reference & extras" style="margin-top:18px" class="grid">
+    <div class="panel" style="grid-column:1/-1">
+      <details>
+        <summary>📚 Educator Toolkit (guides, prompts, rubrics)</summary>
+        <div class="cards" id="toolkit"></div>
+      </details>
+      <details style="margin-top:12px">
+        <summary>🛰️ “Upgrades sourced from the web” (ideas to research)</summary>
+        <p>Use responsibly. Validate sources. Adapt to local context.</p>
+        <ul>
+          <li>Open datasets for community science (air, water, biodiversity) → student dashboards</li>
+          <li>Local micro-credentialing with verifiable badges (exportable JSON)</li>
+          <li>Career-linked capstones co-designed with civil society and SMEs</li>
+          <li>Assistive tech bundles for neurodivergent learners; universal design by default</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+</main>
+
+<div class="drawer">
+  <div class="plan">
+    <header class="bar" style="padding:6px 10px">
+      <div class="title">
+        <h3 style="margin:0">Your Mycelial Plan</h3>
+        <small>Drag to reorder. Export to JSON or print for board approval.</small>
+      </div>
+      <div class="grow"></div>
+      <button id="savePlanBtn" class="btn primary">💾 Save</button>
+    </header>
+    <div class="planlist" id="planlist" aria-live="polite"></div>
+    <div class="actions" style="margin-top:10px">
+      <button id="exportJSON" class="btn">⬇️ Export .json</button>
+      <button id="exportPDF" class="btn ghost">🖨️ Export for print</button>
+      <button id="clearPlan" class="btn ghost">🧹 Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">Saved locally ✅</div>
+
+<footer>
+  <p>🧠💚 Built for teachers, students, and public stewards. Offline-ready • Zero-harm • Transparent by design. </p>
+</footer>
+
+<!-- ============================== DATA ============================== -->
+<script>
+const PROJECTS = [
+  {
+    id:"lit-lab",
+    title:"Community Literacy Lab",
+    audience:["teacher","student","gov"],
+    badges:["offline","equity","assessment"],
+    summary:"Peer-led reading + AI-assisted feedback; printable packs for low-connectivity schools.",
+    outcomes:["+10% reading fluency","Weekly reflection journals","Community reading circles"],
+    steps:[
+      "Form reading triads; pick local topics.",
+      "Use teacher-guided AI to suggest leveled questions.",
+      "Print comprehension rubrics for offline use.",
+      "Host a monthly community read-aloud."
+    ]
+  },
+  {
+    id:"ai-journalism",
+    title:"Civic Micro-Journalism",
+    audience:["student","teacher","gov"],
+    badges:["ai","safety","policy"],
+    summary:"Students investigate local issues; AI helps structure interviews and fact-checks under teacher supervision.",
+    outcomes:["Media literacy","Civic engagement","Source logs & consent forms"],
+    steps:[
+      "Map stakeholders and draft interview protocols.",
+      "Collect quotes with explicit consent.",
+      "Use AI to organize notes; no ghostwriting.",
+      "Publish a class zine; present to council."
+    ]
+  },
+  {
+    id:"green-lab",
+    title:"Schoolyard Biodiversity Index",
+    audience:["teacher","student","gov"],
+    badges:["offline","assessment"],
+    summary:"Measure pollinators and native plants; build a baseline dataset and student dashboards.",
+    outcomes:["Baseline species count","Habitats map","Maintenance rota"],
+    steps:[
+      "Create quadrant maps of the yard.",
+      "Weekly observation logs; paper → CSV later.",
+      "Publish an end-of-term biodiversity brief.",
+      "Propose a mini-grant for native plant beds."
+    ]
+  },
+  {
+    id:"wellbeing",
+    title:"Kind Campus: Wellbeing & Belonging",
+    audience:["teacher","student","gov"],
+    badges:["equity","assessment"],
+    summary:"Student-designed kindness rituals and check-ins; privacy-preserving pulse surveys.",
+    outcomes:["Belonging index","Restorative practices","Peer support map"],
+    steps:[
+      "Co-create a classroom charter.",
+      "Anonymous weekly 3-question survey.",
+      "Reflect circles (teacher-moderated).",
+      "Share wins at assembly to reinforce culture."
+    ]
+  },
+  {
+    id:"career-studio",
+    title:"Career Studio: Portfolios & Micro-Credentials",
+    audience:["student","teacher"],
+    badges:["ai","offline","assessment"],
+    summary:"Students build real portfolios; rubrics are transparent; badges export as JSON.",
+    outcomes:["3 artifacts per term","Public-good project","Verifiable badge JSON"],
+    steps:[
+      "Pick a community problem to improve.",
+      "Draft a SMART plan; teacher approves.",
+      "Deliver, measure, reflect; publish artifacts.",
+      "Badge minted locally; export to .json."
+    ]
+  },
+  {
+    id:"policy-sprint",
+    title:"Policy Sprint for Boards & Ministries",
+    audience:["gov","teacher"],
+    badges:["policy","safety"],
+    summary:"Short sprint aligning AI classroom use with safety, equity, and transparency.",
+    outcomes:["Model policy v1","Risk register","Teacher prompt library"],
+    steps:[
+      "Audit current tools & data flows.",
+      "Define teacher-guided AI rules.",
+      "Draft safeguards + grievance pathway.",
+      "Publish & train; review each term."
+    ]
+  },
+  {
+    id:"math-makers",
+    title:"Math Makerspace (Low-Code)",
+    audience:["teacher","student"],
+    badges:["ai","offline"],
+    summary:"Hands-on math + microcontrollers; AI helps generate scaffolds, not answers.",
+    outcomes:["Math talk frequency ↑","Project journals","Showcase day"],
+    steps:[
+      "Select real-life math problems.",
+      "Prototype with cardboard/MCUs.",
+      "AI suggests hints; teacher vets.",
+      "Exhibit & reflect with families."
+    ]
+  },
+  {
+    id:"heritage-archive",
+    title:"Local Heritage Archive",
+    audience:["student","teacher","gov"],
+    badges:["equity","offline","assessment"],
+    summary:"Oral history + scanning day; consent-first archiving and community exhibits.",
+    outcomes:["Digitized stories","Exhibit night","Intergenerational ties"],
+    steps:[
+      "Consent workshop (students & elders).",
+      "Record audio; transcribe when possible.",
+      "Curate a traveling mini-museum.",
+      "Publish a preservation plan."
+    ]
+  }
+];
+
+const TOOLKIT = [
+  {id:"prompt-pack", title:"Teacher-Guided AI Prompt Pack", kind:"guide", note:"Safety-aware prompts for planning, scaffolding, and feedback."},
+  {id:"rubrics", title:"Transparent Rubric Templates", kind:"doc", note:"Editable criteria with student-friendly language."},
+  {id:"consent", title:"Consent & Data Ethics Kit", kind:"policy", note:"Forms, logs, and explanation scripts for families."},
+  {id:"offline", title:"Offline Readiness Playbook", kind:"guide", note:"Print modes, cache strategy, and device rotation"},
+  {id:"equity", title:"Equity Lens Checklist", kind:"doc", note:"Design for inclusion from the start."}
+];
+
+const PLAN_KEY = "mycelial-plan-v1";
+</script>
+
+<!-- ============================== APP ============================== -->
+<script>
+/* ---------- Utilities ---------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function toast(msg, ms=1600){
+  const t = $('#toast'); t.textContent = msg; t.style.display='block';
+  clearTimeout(toast._id);
+  toast._id = setTimeout(()=> t.style.display='none', ms);
+}
+
+function savePlanLocal(){
+  const items = [...$('#planlist').children].map(n=> JSON.parse(n.dataset.item));
+  localStorage.setItem(PLAN_KEY, JSON.stringify(items));
+  toast("Saved locally ✅");
+}
+
+function loadPlanLocal(){
+  const raw = localStorage.getItem(PLAN_KEY);
+  if(!raw) return [];
+  try{ return JSON.parse(raw) } catch { return [] }
+}
+
+function download(filename, text){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL( new Blob([text], {type:'application/json'}) );
+  a.download = filename; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ---------- Renderers ---------- */
+function renderCards(list){
+  const role = $('#role').value;
+  const q = $('#search').value.trim().toLowerCase();
+  const activeFilters = [...$('#quick-filters').querySelectorAll('.tag.active')].map(t=>t.dataset.filter);
+
+  const filtered = list.filter(p=>{
+    const matchesRole = role==='all' || p.audience.includes(role);
+    const matchesQ = !q || (p.title.toLowerCase().includes(q) || p.summary.toLowerCase().includes(q) || p.badges.join(' ').includes(q));
+    const matchesFilters = activeFilters.length===0 || activeFilters.every(f => p.badges.includes(f));
+    return matchesRole && matchesQ && matchesFilters;
+  });
+
+  const el = $('#cards'); el.innerHTML = '';
+  for(const p of filtered){
+    const card = document.createElement('article');
+    card.className='card';
+    card.innerHTML = `
+      <span class="badge">${p.badges.map(b=>`#${b}`).join(' ')}</span>
+      <h3>${p.title}</h3>
+      <p>${p.summary}</p>
+      <div class="meta">
+        ${p.audience.map(a=>`<span class="tag">${a==='teacher'?'🍎':'student'===a?'🎒':a==='gov'?'🏛️':'🎛️'} ${a}</span>`).join('')}
+      </div>
+      <details>
+        <summary>View steps & outcomes</summary>
+        <ul>${p.steps.map(s=>`<li>${s}</li>`).join('')}</ul>
+        <p><strong>Expected outcomes:</strong> ${p.outcomes.join(' • ')}</p>
+      </details>
+      <div class="actions">
+        <button class="btn add">➕ Add to plan</button>
+        <button class="btn ghost clone">🧪 Clone & edit</button>
+      </div>
+    `;
+    card.querySelector('.add').onclick = ()=> addToPlan(p);
+    card.querySelector('.clone').onclick = ()=> cloneProject(p);
+    el.appendChild(card);
+  }
+}
+
+function renderToolkit(){
+  const box = $('#toolkit'); box.innerHTML='';
+  for(const t of TOOLKIT){
+    const c = document.createElement('article');
+    c.className='card';
+    c.innerHTML = `
+      <h3>${t.title}</h3>
+      <p>${t.note}</p>
+      <div class="actions">
+        <button class="btn ghost">📄 Open</button>
+        <button class="btn">⬇️ Download</button>
+      </div>
+    `;
+    box.appendChild(c);
+  }
+}
+
+function addToPlan(p){
+  const node = document.createElement('div');
+  node.className='planitem';
+  node.draggable = true;
+  const payload = {id:p.id, title:p.title, badges:p.badges, ts: Date.now()};
+  node.dataset.item = JSON.stringify(payload);
+  node.innerHTML = `
+    <p>🔗 ${p.title}</p>
+    <div class="actions">
+      <button class="btn ghost up" title="Move up">▲</button>
+      <button class="btn ghost down" title="Move down">▼</button>
+      <button class="btn" title="Notes">📝</button>
+      <button class="btn ghost rm" title="Remove">✖</button>
+    </div>
+  `;
+  node.querySelector('.rm').onclick = ()=> { node.remove(); savePlanLocal(); };
+  node.querySelector('.up').onclick = ()=> { node.parentElement.insertBefore(node, node.previousElementSibling); savePlanLocal(); };
+  node.querySelector('.down').onclick = ()=> { const next=node.nextElementSibling; if(next) node.parentElement.insertBefore(next, node); savePlanLocal(); };
+  node.querySelector('button[title="Notes"]').onclick = ()=>{
+    const txt = prompt("Add/edit notes for: "+p.title, node.dataset.notes || "");
+    if(txt!==null){ node.dataset.notes = txt; savePlanLocal(); }
+  };
+  $('#planlist').appendChild(node);
+  savePlanLocal();
+}
+
+function cloneProject(p){
+  const title = prompt("Clone project. New title:", p.title+" (Custom)");
+  if(!title) return;
+  const custom = {...p, id: p.id+"-"+Math.random().toString(36).slice(2,7), title};
+  PROJECTS.push(custom);
+  renderCards(PROJECTS);
+  toast("Cloned. Edit steps/outcomes inside the card.");
+}
+
+/* ---------- Interactions ---------- */
+$('#role').onchange = ()=> renderCards(PROJECTS);
+$('#bg').onchange = (e)=> setBackground(e.target.value);
+$('#search').oninput = ()=> renderCards(PROJECTS);
+$('#exportBtn').onclick = ()=> exportCurrentView();
+$('#printBtn').onclick = ()=> window.print();
+$('#resetBtn').onclick = ()=>{
+  localStorage.removeItem(PLAN_KEY);
+  $('#planlist').innerHTML='';
+  $$('#quick-filters .tag').forEach(t=> t.classList.remove('active'));
+  $('#search').value='';
+  $('#role').value='all';
+  renderCards(PROJECTS);
+  toast("Reset complete");
+};
+$('#clearPlan').onclick = ()=>{
+  $('#planlist').innerHTML=''; savePlanLocal();
+};
+$('#exportJSON').onclick = ()=>{
+  const items = [...$('#planlist').children].map(n=>{
+    const obj = JSON.parse(n.dataset.item);
+    if(n.dataset.notes) obj.notes = n.dataset.notes;
+    return obj;
+  });
+  const exportObj = {
+    type:"mycelial-plan",
+    version:1,
+    generatedAt: new Date().toISOString(),
+    audience: $('#role').value,
+    items
+  };
+  download("mycelial-plan.json", JSON.stringify(exportObj, null, 2));
+};
+$('#exportPDF').onclick = ()=> window.print();
+$('#savePlanBtn').onclick = savePlanLocal;
+
+$('#quick-filters').addEventListener('click', (e)=>{
+  const t = e.target.closest('.tag'); if(!t) return;
+  t.classList.toggle('active'); renderCards(PROJECTS);
+});
+
+/* Keyboard quick-open */
+window.addEventListener('keydown', (e)=>{
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); $('#search').focus(); }
+});
+
+/* ---------- Background Systems ---------- */
+let skyCtx, myCtx, w, h, stars=[], links=[];
+function resize(){
+  w = window.innerWidth; h = window.innerHeight;
+  const sky = $('#sky'), my = $('#mycelium');
+  sky.width = my.width = w; sky.height = my.height = h;
+  skyCtx = sky.getContext('2d'); myCtx = my.getContext('2d');
+}
+window.addEventListener('resize', resize); resize();
+
+function initStars(n = Math.min(300, Math.floor(w*h/6000))){
+  stars = Array.from({length:n}, _=>{
+    return { x:Math.random()*w, y:Math.random()*h, z:Math.random()*2+0.5, tw:Math.random()*2*Math.PI }
+  });
+}
+function drawStars(t){
+  skyCtx.clearRect(0,0,w,h);
+  for(const s of stars){
+    s.tw += 0.02;
+    const r = s.z + Math.sin(s.tw)*0.6;
+    skyCtx.beginPath();
+    skyCtx.arc(s.x, s.y, r, 0, Math.PI*2);
+    skyCtx.fillStyle = `rgba(200,245,255,${0.3 + 0.3*Math.sin(s.tw)})`;
+    skyCtx.fill();
+  }
+}
+
+function initMycelium(nodes = 48){
+  const cx = w/2, cy = h/2;
+  const radius = Math.min(w,h)/3;
+  const pts = Array.from({length:nodes}, (_,i)=>{
+    const a = (i/nodes)*Math.PI*2;
+    return {
+      x: cx + Math.cos(a)*(radius*(.5 + Math.random()*.7)),
+      y: cy + Math.sin(a)*(radius*(.5 + Math.random()*.7)),
+      vx:(Math.random()-.5)*0.4, vy:(Math.random()-.5)*0.4
+    }
+  });
+  links = pts;
+}
+function drawMycelium(t){
+  myCtx.clearRect(0,0,w,h);
+  // edges
+  for(let i=0;i<links.length;i++){
+    for(let j=i+1;j<links.length;j++){
+      const a=links[i], b=links[j];
+      const dx=a.x-b.x, dy=a.y-b.y, d=Math.hypot(dx,dy);
+      if(d<150){
+        myCtx.strokeStyle = `rgba(120,255,214,${(1-d/150)*.25})`;
+        myCtx.lineWidth = (1-d/150)*2;
+        myCtx.beginPath(); myCtx.moveTo(a.x,a.y); myCtx.lineTo(b.x,b.y); myCtx.stroke();
+      }
+    }
+  }
+  // nodes
+  for(const p of links){
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>w) p.vx*=-1;
+    if(p.y<0||p.y>h) p.vy*=-1;
+    myCtx.beginPath(); myCtx.arc(p.x,p.y,1.8,0,Math.PI*2);
+    myCtx.fillStyle='rgba(168,255,120,.7)'; myCtx.fill();
+  }
+}
+
+let bgMode = 'constellation';
+function setBackground(mode){
+  bgMode = mode;
+  // adjust opacity/mix
+  const my = $('#mycelium');
+  if(mode==='constellation'){ my.style.opacity=.65; my.style.mixBlendMode='screen' }
+  if(mode==='mycelium'){ my.style.opacity=.9; my.style.mixBlendMode='screen' }
+  if(mode==='roots'){ my.style.opacity=.55; my.style.mixBlendMode='lighten' }
+  if(mode==='neural'){ my.style.opacity=.8; my.style.mixBlendMode='hard-light' }
+}
+
+function loop(t=0){
+  drawStars(t);
+  drawMycelium(t);
+  requestAnimationFrame(loop);
+}
+
+/* ---------- Service Worker (inline via Blob) ---------- */
+(function registerSW(){
+  const swCode = `
+    const CACHE = 'mycelial-school-v1';
+    const ASSETS = self.__ASSETS__ || [];
+    self.addEventListener('install', e=>{
+      e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+    });
+    self.addEventListener('activate', e=>{
+      e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>k===CACHE?null:caches.delete(k))))); 
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e=>{
+      const req = e.request;
+      e.respondWith(
+        caches.match(req).then(res=> res || fetch(req).then(fr=>{
+          // Cache new GET responses opportunistically
+          if(req.method==='GET' && (fr.status===200 || fr.status===0)){
+            const copy = fr.clone();
+            caches.open(CACHE).then(c=>c.put(req, copy));
+          }
+          return fr;
+        }).catch(()=> caches.match('/')))
+      );
+    });
+  `;
+  const assets = [
+    location.pathname || '/',
+  ];
+  const blob = new Blob([`self.__ASSETS__=${JSON.stringify(assets)};\n` + swCode], {type:'text/javascript'});
+  const url = URL.createObjectURL(blob);
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }
+})();
+
+/* ---------- Boot ---------- */
+function boot(){
+  initStars(); initMycelium(); loop();
+  renderCards(PROJECTS); renderToolkit();
+  // load saved plan
+  const saved = loadPlanLocal(); for(const i of saved){
+    const p = PROJECTS.find(x=>x.id===i.id) || {id:i.id, title:i.title, badges:i.badges||[], steps:[], outcomes:[]};
+    addToPlan(p);
+    const last = $('#planlist').lastElementChild;
+    if(i.notes) last.dataset.notes = i.notes;
+  }
+  setBackground('constellation');
+}
+boot();
+
+/* ---------- Export current view ---------- */
+function exportCurrentView(){
+  const role = $('#role').value;
+  const q = $('#search').value.trim();
+  const filters = [...$('#quick-filters').querySelectorAll('.tag.active')].map(t=>t.dataset.filter);
+  const visible = [...$('#cards').children].map((c)=>{
+    const title = c.querySelector('h3').textContent;
+    const id = (title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''))+'';
+    return {id, title};
+  });
+  const payload = {
+    type: "mycelial-school-view",
+    version:1,
+    exportedAt: new Date().toISOString(),
+    role, q, filters, visibleCount: visible.length, visible
+  };
+  download('mycelial-school-view.json', JSON.stringify(payload, null, 2));
+}
+
+/* Small accessibility: focus outlines on keyboard only */
+(function(){
+  function onMouse(){ document.body.classList.add('no-outline') }
+  function onKey(e){ if(e.key==='Tab') document.body.classList.remove('no-outline') }
+  window.addEventListener('mousedown', onMouse);
+  window.addEventListener('keydown', onKey);
+})();
+</script>
+
+<!-- ============================== PRINT STYLES ============================== -->
+<style media="print">
+  header, .drawer, .vignette, #sky, #mycelium { display:none !important }
+  body{ background:#fff; color:#000 }
+  .card, .panel{ background:#fff !important; border:1px solid #000 !important; box-shadow:none !important; }
+  a, .tag{ color:#000 !important; border-color:#000 !important }
+</style>
+</body>
+</html>

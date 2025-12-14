@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regenerative Education Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d5a27;
+            --secondary-green: #4a7c59;
+            --accent-gold: #d4af37;
+            --forest-dark: #1a3617;
+            --earth-brown: #8b4513;
+            --sky-blue: #87ceeb;
+            --text-light: #f5f5f5;
+            --text-dark: #2c2c2c;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow-strong: 0 12px 48px rgba(0, 0, 0, 0.2);
+            --gradient-primary: linear-gradient(135deg, #2d5a27, #4a7c59);
+            --gradient-accent: linear-gradient(135deg, #d4af37, #f4e19c);
+            --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a3617 0%, #2d5a27 50%, #4a7c59 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-gold);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            background: var(--sky-blue);
+            top: 60%;
+            left: 80%;
+            animation-delay: -5s;
+        }
+
+        .floating-element:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            background: var(--earth-brown);
+            top: 80%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(-60px) rotate(240deg); }
+            100% { transform: translateY(0px) rotate(360deg); }
+        }
+
+        /* Glass Morphism Components */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-strong);
+            border-color: var(--accent-gold);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: rgba(26, 54, 23, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-accent);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-links a:hover::before {
+            left: 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--forest-dark);
+        }
+
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .wallet-address {
+            font-family: monospace;
+            background: var(--glass-bg);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: bold;
+            background: var(--gradient-accent);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            animation: slideIn 1s ease-out;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: slideIn 1s ease-out 0.2s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .dashboard-card {
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-accent);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Interactive Map */
+        .map-container {
+            height: 300px;
+            background: var(--gradient-glass);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .school-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            border: 3px solid var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .school-marker:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 20px var(--accent-gold);
+        }
+
+        /* Progress Visualizations */
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 1rem auto;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-ring .progress {
+            stroke: var(--accent-gold);
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            animation: progressFill 2s ease-out forwards;
+        }
+
+        @keyframes progressFill {
+            to {
+                stroke-dashoffset: calc(283 - (283 * var(--progress)) / 100);
+            }
+        }
+
+        /* Interactive Buttons */
+        .action-button {
+            background: var(--gradient-primary);
+            color: var(--text-light);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-accent);
+            transition: left 0.3s ease;
+            z-index: 0;
+        }
+
+        .action-button:hover::before {
+            left: 0;
+        }
+
+        .action-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-strong);
+        }
+
+        .action-button:hover span {
+            color: var(--forest-dark);
+        }
+
+        /* Tree Counter */
+        .tree-counter {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .counter-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: block;
+            margin-bottom: 0.5rem;
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Modal System */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            background: var(--glass-bg);
+            transform: rotate(90deg);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--accent-gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            z-index: 10001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #00ff00;
+        }
+
+        .notification.error {
+            border-left: 4px solid #ff0000;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .wallet-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Data Visualization */
+        .chart-container {
+            height: 200px;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 10px;
+            padding: 1rem 0;
+        }
+
+        .bar {
+            flex: 1;
+            background: var(--gradient-accent);
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .bar:hover {
+            transform: scaleY(1.1);
+            filter: brightness(1.2);
+        }
+
+        /* Advanced Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌱</div>
+                <span>Regenerative Education Network</span>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#schools">Schools</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#community">Community</a></li>
+                    <li><a href="#resources">Resources</a></li>
+                </ul>
+            </nav>
+            <div class="wallet-info">
+                <div class="status-indicator"></div>
+                <div class="wallet-address" id="walletAddress">Loading...</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Growing the Future Together</h1>
+            <p class="hero-subtitle">A living network of regenerative schools healing our planet through education</p>
+            
+            <div class="tree-counter">
+                <span class="counter-number" id="treeCounter">0</span>
+                <span>Trees Planted by Students</span>
+            </div>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <section class="dashboard-grid">
+            <!-- School Network Card -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">🏫</div>
+                <h3 class="card-title">School Network</h3>
+                <p>Track pilot schools across Canada and their regenerative impact</p>
+                
+                <div class="map-container" onclick="openModal('schoolMap')">
+                    <div class="school-marker" style="top: 30%; left: 20%;"></div>
+                    <div class="school-marker" style="top: 40%; left: 60%;"></div>
+                    <div class="school-marker" style="top: 70%; left: 40%;"></div>
+                    <div class="school-marker" style="top: 20%; left: 80%;"></div>
+                    <div class="map-overlay">
+                        <h4>13 Pilot Schools Active</h4>
+                        <p>Click to explore</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Tracking -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">📊</div>
+                <h3 class="card-title">Impact Metrics</h3>
+                <p>Real-time tracking of ecological and educational outcomes</p>
+                
+                <div class="progress-ring">
+                    <svg width="120" height="120">
+                        <circle class="bg" cx="60" cy="60" r="45"></circle>
+                        <circle class="progress" cx="60" cy="60" r="45" style="--progress: 75;"></circle>
+                    </svg>
+                </div>
+                <p style="text-align: center;">Carbon Sequestration Goal: 75%</p>
+            </div>
+
+            <!-- Student Projects -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">🌿</div>
+                <h3 class="card-title">Active Projects</h3>
+                <p>Student-led initiatives across all education levels</p>
+                
+                <div class="chart-container">
+                    <div class="bar-chart">
+                        <div class="bar" style="height: 60%;" title="Elementary: Seedling Stewards"></div>
+                        <div class="bar" style="height: 80%;" title="Middle: Watershed Warriors"></div>
+                        <div class="bar" style="height: 90%;" title="High School: Carbon Farmers"></div>
+                        <div class="bar" style="height: 70%;" title="University: Research Labs"></div>
+                    </div>
+                </div>
+                <button class="action-button" onclick="openModal('projectDetails')">
+                    <span>View Projects</span>
+                </button>
+            </div>
+
+            <!-- Community Engagement -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">👥</div>
+                <h3 class="card-title">Community Network</h3>
+                <p>Parents, teachers, and community leaders collaborating</p>
+                
+                <div style="margin: 1rem 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Teacher Satisfaction</span>
+                        <span>92%</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; overflow: hidden;">
+                        <div style="background: var(--accent-gold); height: 100%; width: 92%; transition: width 2s ease;"></div>
+                    </div>
+                </div>
+                
+                <button class="action-button" onclick="openModal('communityHub')">
+                    <span>Join Community</span>
+                </button>
+            </div>
+
+            <!-- Resource Library -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">📚</div>
+                <h3 class="card-title">Learning Resources</h3>
+                <p>Open-source curriculum and implementation guides</p>
+                
+                <div style="margin: 1rem 0;">
+                    <p>📖 Curriculum Modules: 127</p>
+                    <p>🎥 Video Guides: 89</p>
+                    <p>🔧 Implementation Tools: 45</p>
+                    <p>🌍 Language Versions: 12</p>
+                </div>
+                
+                <button class="action-button" onclick="openModal('resourceLibrary')">
+                    <span>Access Resources</span>
+                </button>
+            </div>
+
+            <!-- Global Impact -->
+            <div class="glass-card dashboard-card">
+                <div class="card-icon">🌍</div>
+                <h3 class="card-title">Global Reach</h3>
+                <p>International partnerships and knowledge sharing</p>
+                
+                <div style="margin: 1rem 0;">
+                    <p>🇨🇦 Canada: 52 schools</p>
+                    <p>🌎 International Partners: 8 countries</p>
+                    <p>👨‍🎓 Students Impacted: 12,847</p>
+                    <p>🌱 Ecosystems Restored: 234 hectares</p>
+                </div>
+                
+                <button class="action-button" onclick="openModal('globalPartnership')">
+                    <span>Global Network</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Templates -->
+    <div id="schoolMap" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>School Network Map</h2>
+                <button class="close-button" onclick="closeModal('schoolMap')">&times;</button>
+            </div>
+            <div class="loading" id="mapLoading">
+                <div class="spinner"></div>
+                <p>Loading school data...</p>
+            </div>
+            <div id="mapContent" style="display: none;">
+                <p>Interactive map showing all pilot schools across Canada, their current projects, and impact metrics.</p>
+                <div style="margin: 1rem 0;">
+                    <h4>Featured Schools:</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 0.5rem 0;">🏫 Vancouver Harmony Hub - 847 trees planted</li>
+                        <li style="margin: 0.5rem 0;">🏫 Calgary Energy Lab - 23kW solar installed</li>
+                        <li style="margin: 0.5rem 0;">🏫 Prairie Restoration Collective - 15 hectares restored</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="projectDetails" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Student-Led Projects</h2>
+                <button class="close-button" onclick="closeModal('projectDetails')">&times;</button>
+            </div>
+            <div id="projectContent">
+                <div style="margin-bottom: 1.5rem;">
+                    <h4>🌱 Elementary: Seedling Stewards</h4>
+                    <p>Young students growing native plants and learning about ecosystems through hands-on gardening.</p>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <h4>💧 Middle School: Watershed Warriors</h4>
+                    <p>Students restoring local water systems and monitoring ecosystem health.</p>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <h4>🌾 High School: Carbon Farmers</h4>
+                    <p>Advanced students managing food forests and renewable energy systems.</p>
+                </div>
+                <div class="form-group">
+                    <button class="action-button" onclick="showNotification('Project submission feature coming soon!', 'success')">
+                        <span>Submit New Project</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="communityHub" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Community Hub</h2>
+                <button class="close-button" onclick="closeModal('communityHub')">&times;</button>
+            </div>
+            <form id="communityForm">
+                <div class="form-group">
+                    <label class="form-label">Your Role</label>
+                    <select class="form-input">
+                        <option>Teacher</option>
+                        <option>Parent</option>
+                        <option>Administrator</option>
+                        <option>Community Member</option>
+                        <option>Student</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location (Province)</label>
+                    <select class="form-input">
+                        <option>British Columbia</option>
+                        <option>Alberta</option>
+                        <option>Saskatchewan</option>
+                        <option>Manitoba</option>
+                        <option>Ontario</option>
+                        <option>Quebec</option>
+                        <option>New Brunswick</option>
+                        <option>Nova Scotia</option>
+                        <option>Prince Edward Island</option>
+                        <option>Newfoundland and Labrador</option>
+                        <option>Yukon</option>
+                        <option>Northwest Territories</option>
+                        <option>Nunavut</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Interest Areas</label>
+                    <textarea class="form-input" placeholder="What aspects of regenerative education interest you most?"></textarea>
+                </div>
+                <button type="submit" class="action-button">
+                    <span>Join Community</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="resourceLibrary" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Resource Library</h2>
+                <button class="close-button" onclick="closeModal('resourceLibrary')">&times;</button>
+            </div>
+            <div id="resourceContent">
+                <div style="display: grid; gap: 1rem;">
+                    <div style="padding: 1rem; background: var(--glass-bg); border-radius: 10px;">
+                        <h4>📚 Curriculum Modules</h4>
+                        <p>Grade-specific lesson plans for regenerative education</p>
+                        <button class="action-button" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>Download</span>
+                        </button>
+                    </div>
+                    <div style="padding: 1rem; background: var(--glass-bg); border-radius: 10px;">
+                        <h4>🎥 Implementation Videos</h4>
+                        <p>Step-by-step guides for setting up regenerative programs</p>
+                        <button class="action-button" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>Watch Now</span>
+                        </button>
+                    </div>
+                    <div style="padding: 1rem; background: var(--glass-bg); border-radius: 10px;">
+                        <h4>🔧 Assessment Tools</h4>
+                        <p>Alternative evaluation methods for regenerative outcomes</p>
+                        <button class="action-button" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>Access Tools</span>
+                        </button>
+                    </div>
+                    <div style="padding: 1rem; background: var(--glass-bg); border-radius: 10px;">
+                        <h4>🌍 Global Adaptations</h4>
+                        <p>Localized versions for different regions and cultures</p>
+                        <button class="action-button" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                            <span>Explore</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="globalPartnership" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Global Partnership Network</h2>
+                <button class="close-button" onclick="closeModal('globalPartnership')">&times;</button>
+            </div>
+            <div id="globalContent">
+                <div style="margin-bottom: 1.5rem;">
+                    <h4>🌐 International Partners</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 0.5rem 0;">🇫🇮 Finland - Forest Education Network</li>
+                        <li style="margin: 0.5rem 0;">🇳🇿 New Zealand - Māori Place-Based Learning</li>
+                        <li style="margin: 0.5rem 0;">🇨🇷 Costa Rica - Ecosystem Services Schools</li>
+                        <li style="margin: 0.5rem 0;">🇧🇹 Bhutan - Gross National Happiness Education</li>
+                        <li style="margin: 0.5rem 0;">🇰🇪 Kenya - Community Restoration Schools</li>
+                        <li style="margin: 0.5rem 0;">🇵🇭 Philippines - Urban Garden Schools</li>
+                        <li style="margin: 0.5rem 0;">🇬🇹 Guatemala - Traditional Knowledge Integration</li>
+                        <li style="margin: 0.5rem 0;">🇮🇳 India - Air Quality Improvement Schools</li>
+                    </ul>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Interested in International Partnership?</label>
+                    <input type="email" class="form-input" placeholder="Your organization's email">
+                </div>
+                <button class="action-button">
+                    <span>Request Partnership</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification">
+        <div id="notificationContent"></div>
+    </div>
+
+    <script>
+        // Crypto Wallet Address Generation
+        class SimpleWallet {
+            constructor() {
+                this.address = this.getOrCreateWalletAddress();
+                this.userData = this.loadUserData();
+            }
+
+            getOrCreateWalletAddress() {
+                let address = localStorage.getItem('wallet_address');
+                if (!address) {
+                    // Generate a simple wallet-like address based on device/browser fingerprint
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    ctx.textBaseline = 'top';
+                    ctx.font = '14px Arial';
+                    ctx.fillText('Device fingerprint', 2, 2);
+                    
+                    const fingerprint = canvas.toDataURL() + 
+                                     navigator.userAgent + 
+                                     screen.width + screen.height + 
+                                     new Date().getTimezoneOffset();
+                    
+                    // Create a deterministic address from fingerprint
+                    address = '0x' + this.hashCode(fingerprint).toString(16).padStart(40, '0');
+                    localStorage.setItem('wallet_address', address);
+                }
+                return address;
+            }
+
+            hashCode(str) {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    const char = str.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32-bit integer
+                }
+                return Math.abs(hash);
+            }
+
+            loadUserData() {
+                const data = localStorage.getItem(`user_data_${this.address}`);
+                return data ? JSON.parse(data) : {
+                    joinDate: new Date().toISOString(),
+                    contributions: [],
+                    projectsSupported: [],
+                    communityRole: 'member'
+                };
+            }
+
+            saveUserData() {
+                localStorage.setItem(`user_data_${this.address}`, JSON.stringify(this.userData));
+            }
+
+            addContribution(contribution) {
+                this.userData.contributions.push({
+                    ...contribution,
+                    timestamp: new Date().toISOString(),
+                    walletAddress: this.address
+                });
+                this.saveUserData();
+            }
+        }
+
+        // Initialize wallet and user system
+        const wallet = new SimpleWallet();
+        
+        // Display wallet address
+        function displayWalletAddress() {
+            const addressElement = document.getElementById('walletAddress');
+            const shortAddress = `${wallet.address.slice(0, 6)}...${wallet.address.slice(-4)}`;
+            addressElement.textContent = shortAddress;
+            addressElement.title = wallet.address;
+        }
+
+        // Modal system
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Simulate loading for some modals
+            if (modalId === 'schoolMap') {
+                const loading = document.getElementById('mapLoading');
+                const content = document.getElementById('mapContent');
+                loading.style.display = 'block';
+                content.style.display = 'none';
+                
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    content.style.display = 'block';
+                    content.classList.add('fade-in');
+                }, 1500);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const content = document.getElementById('notificationContent');
+            
+            content.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Tree counter animation
+        function animateTreeCounter() {
+            const counter = document.getElementById('treeCounter');
+            const target = 127549; // Current tree count
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = Math.floor(current).toLocaleString();
+            }, 30);
+        }
+
+        // Community form handler
+        document.getElementById('communityForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const contribution = {
+                type: 'community_join',
+                role: formData.get('role') || this.querySelector('select').value,
+                location: this.querySelectorAll('select')[1].value,
+                interests: this.querySelector('textarea').value
+            };
+            
+            wallet.addContribution(contribution);
+            
+            showNotification('Welcome to the Regenerative Education Network!', 'success');
+            closeModal('communityHub');
+            
+            // Reset form
+            this.reset();
+        });
+
+        // Progress tracking
+        function updateProgressMetrics() {
+            const progressElements = document.querySelectorAll('.progress');
+            progressElements.forEach(el => {
+                const progress = el.style.getPropertyValue('--progress') || '0';
+                el.style.strokeDashoffset = `calc(283 - (283 * ${progress}) / 100)`;
+            });
+        }
+
+        // Interactive chart bars
+        document.querySelectorAll('.bar').forEach((bar, index) => {
+            bar.addEventListener('click', () => {
+                const categories = [
+                    'Elementary Schools: 23 active projects',
+                    'Middle Schools: 18 watershed restoration projects', 
+                    'High Schools: 11 carbon farming enterprises',
+                    'Universities: 8 research partnerships'
+                ];
+                showNotification(categories[index], 'success');
+            });
+        });
+
+        // School marker interactions
+        document.querySelectorAll('.school-marker').forEach((marker, index) => {
+            marker.addEventListener('mouseover', function() {
+                const schools = [
+                    'Vancouver Harmony Hub - Multicultural integration',
+                    'Calgary Energy Lab - Renewable energy transition',
+                    'Prairie Restoration - Regenerative agriculture',
+                    'Northern Lights Network - Remote learning innovation'
+                ];
+                this.title = schools[index] || 'Regenerative School';
+            });
+            
+            marker.addEventListener('click', function(e) {
+                e.stopPropagation();
+                showNotification(this.title, 'success');
+            });
+        });
+
+        // Advanced interactions
+        function addAdvancedInteractions() {
+            // Smooth scroll for navigation links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href').substring(1);
+                    showNotification(`Navigating to ${target}...`, 'success');
+                });
+            });
+
+            // Dynamic background animation
+            const floatingElements = document.querySelectorAll('.floating-element');
+            floatingElements.forEach((el, index) => {
+                el.addEventListener('click', () => {
+                    el.style.animation = 'none';
+                    setTimeout(() => {
+                        el.style.animation = `float ${20 + index * 5}s infinite linear`;
+                    }, 100);
+                    showNotification('Background element refreshed!', 'success');
+                });
+            });
+        }
+
+        // Data persistence and sync
+        class DataManager {
+            constructor() {
+                this.syncInterval = null;
+                this.lastSync = localStorage.getItem('last_sync');
+            }
+
+            startAutoSync() {
+                this.syncInterval = setInterval(() => {
+                    this.syncData();
+                }, 30000); // Sync every 30 seconds
+            }
+
+            syncData() {
+                // Simulate data synchronization
+                const now = new Date().toISOString();
+                localStorage.setItem('last_sync', now);
+                
+                // Update user contributions to simulate real-time data
+                if (Math.random() > 0.7) {
+                    const treeCount = parseInt(document.getElementById('treeCounter').textContent.replace(/,/g, ''));
+                    const newCount = treeCount + Math.floor(Math.random() * 10) + 1;
+                    document.getElementById('treeCounter').textContent = newCount.toLocaleString();
+                }
+            }
+
+            exportUserData() {
+                const data = {
+                    walletAddress: wallet.address,
+                    userData: wallet.userData,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `regenerative_education_data_${wallet.address.slice(0, 8)}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                showNotification('User data exported successfully!', 'success');
+            }
+        }
+
+        // Privacy and security features
+        function enhancePrivacy() {
+            // Disable right-click context menu on sensitive elements
+            document.querySelectorAll('.wallet-address').forEach(el => {
+                el.addEventListener('contextmenu', e => e.preventDefault());
+            });
+
+            // Add copy functionality for wallet address
+            document.getElementById('walletAddress').addEventListener('click', function() {
+                navigator.clipboard.writeText(wallet.address).then(() => {
+                    showNotification('Wallet address copied to clipboard', 'success');
+                }).catch(() => {
+                    showNotification('Failed to copy address', 'error');
+                });
+            });
+        }
+
+        // Real-time updates simulation
+        function simulateRealTimeUpdates() {
+            setInterval(() => {
+                // Randomly update metrics
+                if (Math.random() > 0.8) {
+                    const metrics = document.querySelectorAll('.bar');
+                    const randomBar = metrics[Math.floor(Math.random() * metrics.length)];
+                    const currentHeight = parseInt(randomBar.style.height);
+                    const newHeight = Math.min(95, currentHeight + Math.floor(Math.random() * 5));
+                    randomBar.style.height = `${newHeight}%`;
+                }
+            }, 5000);
+        }
+
+        // Accessibility features
+        function addAccessibilityFeatures() {
+            // Keyboard navigation for modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const openModals = document.querySelectorAll('.modal[style*="display: block"]');
+                    openModals.forEach(modal => {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    });
+                }
+            });
+
+            // Focus management
+            const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab') {
+                        const focusables = modal.querySelectorAll(focusableElements);
+                        const firstFocusable = focusables[0];
+                        const lastFocusable = focusables[focusables.length - 1];
+
+                        if (e.shiftKey && document.activeElement === firstFocusable) {
+                            e.preventDefault();
+                            lastFocusable.focus();
+                        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                            e.preventDefault();
+                            firstFocusable.focus();
+                        }
+                    }
+                });
+            });
+        }
+
+        // Initialize application
+        function initializeApp() {
+            displayWalletAddress();
+            animateTreeCounter();
+            addAdvancedInteractions();
+            enhancePrivacy();
+            simulateRealTimeUpdates();
+            addAccessibilityFeatures();
+            
+            const dataManager = new DataManager();
+            dataManager.startAutoSync();
+
+            // Add export functionality
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    dataManager.exportUserData();
+                }
+            });
+
+            // Progressive enhancement
+            setTimeout(() => {
+                document.querySelectorAll('.dashboard-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('slide-up');
+                    }, index * 200);
+                });
+            }, 500);
+
+            showNotification('Welcome to the Regenerative Education Network!', 'success');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // Initialize when DOM is loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        // Service Worker registration for offline functionality
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        // Progressive Web App features
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install prompt after user interaction
+            setTimeout(() => {
+                if (confirm('Install Regenerative Education Network as an app?')) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            showNotification('App installed successfully!', 'success');
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+            }, 10000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Co-Evolution Education Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #e0e6ed;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: rgba(30, 30, 60, 0.9);
+            backdrop-filter: blur(10px);
+            border-right: 2px solid rgba(64, 224, 208, 0.3);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+        }
+
+        .player-card {
+            padding: 20px;
+            border-bottom: 1px solid rgba(64, 224, 208, 0.2);
+            text-align: center;
+        }
+
+        .sidebar.collapsed .player-card {
+            padding: 10px;
+        }
+
+        .player-avatar {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #40e0d0;
+            margin-bottom: 5px;
+        }
+
+        .player-class {
+            font-size: 0.9rem;
+            color: #a0a0a0;
+            margin-bottom: 15px;
+        }
+
+        .level-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .exp-bar {
+            background: rgba(0, 0, 0, 0.3);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .exp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #40e0d0, #00ced1);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border: 1px solid rgba(64, 224, 208, 0.2);
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #40e0d0;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+        }
+
+        /* File Tree */
+        .file-tree {
+            padding: 20px;
+        }
+
+        .sidebar.collapsed .file-tree {
+            display: none;
+        }
+
+        .tree-node {
+            margin-bottom: 5px;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tree-item:hover {
+            background: rgba(64, 224, 208, 0.1);
+        }
+
+        .tree-item.active {
+            background: rgba(64, 224, 208, 0.2);
+            border: 1px solid rgba(64, 224, 208, 0.4);
+        }
+
+        .tree-icon {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+            border-left: 1px solid rgba(64, 224, 208, 0.2);
+            padding-left: 10px;
+        }
+
+        .tree-children.hidden {
+            display: none;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 0;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(30, 30, 60, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 20px 30px;
+            border-bottom: 2px solid rgba(64, 224, 208, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-btn {
+            background: rgba(64, 224, 208, 0.2);
+            border: 1px solid rgba(64, 224, 208, 0.4);
+            color: #40e0d0;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(64, 224, 208, 0.3);
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            background: linear-gradient(45deg, #40e0d0, #00ced1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+
+        .achievements {
+            display: flex;
+            gap: 10px;
+        }
+
+        .achievement {
+            font-size: 1.5rem;
+            padding: 5px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid gold;
+        }
+
+        .achievement.locked {
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 30px;
+            max-width: none;
+            line-height: 1.6;
+        }
+
+        .quest-panel {
+            background: rgba(30, 30, 60, 0.9);
+            border: 2px solid rgba(64, 224, 208, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .quest-panel h3 {
+            color: #40e0d0;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .quest {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(64, 224, 208, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .quest-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #40e0d0;
+        }
+
+        .quest-desc {
+            color: #b0b0b0;
+            margin-bottom: 10px;
+        }
+
+        .quest-progress {
+            background: rgba(0, 0, 0, 0.3);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .quest-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffa500, #ff6b6b);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .quest-reward {
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+
+        /* Content sections */
+        .content-section {
+            background: rgba(30, 30, 60, 0.9);
+            border: 2px solid rgba(64, 224, 208, 0.3);
+            border-radius: 12px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .content-section h1 {
+            color: #40e0d0;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .content-section h2 {
+            color: #40e0d0;
+            margin: 25px 0 15px 0;
+            font-size: 1.5rem;
+        }
+
+        .content-section h3 {
+            color: #00ced1;
+            margin: 20px 0 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .content-section p {
+            margin-bottom: 15px;
+            color: #e0e6ed;
+        }
+
+        .content-section ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .content-section li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(64, 224, 208, 0.1);
+            border: 1px solid rgba(64, 224, 208, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        /* Notifications */
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: rgba(30, 30, 60, 0.95);
+            border: 2px solid rgba(64, 224, 208, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            min-width: 250px;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification.exp {
+            border-color: rgba(255, 165, 0, 0.5);
+            color: #ffa500;
+        }
+
+        .notification.achievement {
+            border-color: rgba(255, 215, 0, 0.5);
+            color: #ffd700;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Hide content sections by default */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .sidebar.collapsed {
+                width: 50px;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Notifications -->
+        <div class="notifications" id="notifications"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <!-- Player Card -->
+            <div class="player-card">
+                <div class="player-avatar" id="playerAvatar">🎓</div>
+                <div class="player-name" id="playerName">Learning Apprentice</div>
+                <div class="player-class" id="playerClass">Knowledge Seeker</div>
+                <div class="level-badge">Level <span id="playerLevel">1</span></div>
+                <div class="exp-bar">
+                    <div class="exp-fill" id="expFill" style="width: 0%"></div>
+                </div>
+                <div style="font-size: 0.9rem; margin-bottom: 15px;">
+                    <span id="currentExp">0</span> / <span id="maxExp">100</span> EXP
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="articlesRead">0</div>
+                        <div class="stat-label">Articles Read</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="filesExplored">0</div>
+                        <div class="stat-label">Files Explored</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Tree -->
+            <div class="file-tree" id="fileTree">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <button class="toggle-btn" id="toggleSidebar">☰</button>
+                <h1 class="header-title">AI Co-Evolution Education Platform</h1>
+                <div class="achievements">
+                    <div class="achievement locked" id="achievement-first-visit" title="First Steps">🐣</div>
+                    <div class="achievement locked" id="achievement-explorer" title="Explorer">🗺️</div>
+                    <div class="achievement locked" id="achievement-reader" title="Avid Reader">📚</div>
+                    <div class="achievement locked" id="achievement-scholar" title="Scholar">🎓</div>
+                    <div class="achievement locked" id="achievement-collaborator" title="Collaborator">🤝</div>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Active Quests -->
+                <div class="quest-panel">
+                    <h3>🎯 Active Quests</h3>
+                    <div id="questContainer">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Content Sections -->
+                <div class="content-section active" id="content-readme">
+                    <h1>🌟 Welcome to the AI Co-Evolution Education Platform</h1>
+                    
+                    <div class="highlight-box">
+                        <h3>🤖 A living partnership between human and artificial intelligence</h3>
+                        <p>True collaboration between humans and AI requires intentional design. This framework ensures students remain the authors of their learning while AI serves as a thoughtful collaborator.</p>
+                    </div>
+
+                    <h2>🎯 Core Philosophy</h2>
+                    <p>This platform embodies three fundamental principles:</p>
+                    <ul>
+                        <li><strong>Sacred Partnership:</strong> AI as collaborator, not replacement</li>
+                        <li><strong>Student Authorship:</strong> Learners retain creative sovereignty</li>
+                        <li><strong>Regenerative Learning:</strong> Education that enriches both human and artificial intelligence</li>
+                    </ul>
+
+                    <h2>🚀 Getting Started</h2>
+                    <p>Navigate through the file tree on the left to explore:</p>
+                    <ul>
+                        <li><strong>Classroom Tools:</strong> Ready-to-use lesson plans and project templates</li>
+                        <li><strong>Teacher Resources:</strong> Onboarding guides and ethical frameworks</li>
+                        <li><strong>Student Materials:</strong> Scaffolds for AI collaboration</li>
+                    </ul>
+
+                    <h2>🏆 Learning as Adventure</h2>
+                    <p>Your journey here is gamified to celebrate growth and discovery. Complete quests, unlock achievements, and level up your understanding of human-AI collaboration in education.</p>
+                </div>
+
+                <div class="content-section" id="content-starter-pack">
+                    <h1>🎒 Teacher Starter Pack</h1>
+                    
+                    <h2>📋 Quick Setup Checklist</h2>
+                    <ul>
+                        <li>Review ethical framework with students</li>
+                        <li>Establish AI collaboration guidelines</li>
+                        <li>Set up reflection protocols</li>
+                        <li>Create student authorship agreements</li>
+                    </ul>
+
+                    <h2>🎯 First Week Activities</h2>
+                    <h3>Day 1-2: Introduction to AI Partnership</h3>
+                    <p>Begin with a discussion about what makes good collaboration. Introduce AI as a creative partner, not a replacement for thinking.</p>
+
+                    <h3>Day 3-4: Hands-on Exploration</h3>
+                    <p>Students work on a simple creative task with AI assistance, focusing on maintaining their authorship while leveraging AI capabilities.</p>
+
+                    <h3>Day 5: Reflection and Goal Setting</h3>
+                    <p>Students reflect on their experience and set learning goals for deeper AI collaboration.</p>
+
+                    <div class="highlight-box">
+                        <strong>Grade Level:</strong> 6–12<br>
+                        <strong>Duration:</strong> 2–3 weeks<br>
+                        <strong>Subject:</strong> Cross-curricular
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-writing-workshop">
+                    <h1>✍️ AI Writing Workshop</h1>
+                    
+                    <h2>🎯 Learning Objectives</h2>
+                    <ul>
+                        <li>Develop authentic voice while collaborating with AI</li>
+                        <li>Learn effective prompting strategies</li>
+                        <li>Maintain creative authorship throughout the process</li>
+                        <li>Understand AI's strengths and limitations in writing</li>
+                    </ul>
+
+                    <h2>📝 Workshop Structure</h2>
+                    
+                    <h3>Phase 1: Voice Discovery (2 sessions)</h3>
+                    <p>Students write without AI assistance to establish their unique voice and style. This becomes their baseline.</p>
+
+                    <h3>Phase 2: AI as Writing Partner (4 sessions)</h3>
+                    <p>Introduce AI collaboration gradually:</p>
+                    <ul>
+                        <li>Brainstorming and idea generation</li>
+                        <li>Structural feedback and suggestions</li>
+                        <li>Language enhancement and alternatives</li>
+                        <li>Research and fact-checking support</li>
+                    </ul>
+
+                    <h3>Phase 3: Authorship Reflection (2 sessions)</h3>
+                    <p>Students analyze their collaborative process and reflect on how AI enhanced rather than replaced their creativity.</p>
+
+                    <div class="highlight-box">
+                        <p><strong>Key Principle:</strong> The student's voice should become stronger, not diluted, through AI collaboration.</p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-ethical-discussion">
+                    <h1>🤔 Ethical AI Discussion Guide</h1>
+                    
+                    <h2>💭 Essential Questions</h2>
+                    <ul>
+                        <li>What does it mean to be creative in an age of artificial intelligence?</li>
+                        <li>How do we maintain authenticity when collaborating with AI?</li>
+                        <li>What are our responsibilities when using AI tools?</li>
+                        <li>How might AI change the nature of learning and knowledge?</li>
+                    </ul>
+
+                    <h2>🎪 Discussion Activities</h2>
+                    
+                    <h3>Activity 1: The Authorship Spectrum</h3>
+                    <p>Students place different human-AI collaboration scenarios on a spectrum from "purely human" to "AI-generated" and discuss where the lines of authorship lie.</p>
+
+                    <h3>Activity 2: Future Scenarios</h3>
+                    <p>Small groups envision how AI might transform various professions and discuss the skills that will remain uniquely human.</p>
+
+                    <h3>Activity 3: Personal Ethics Framework</h3>
+                    <p>Students develop their own ethical guidelines for AI use, considering transparency, attribution, and integrity.</p>
+
+                    <div class="highlight-box">
+                        <p><strong>Remember:</strong> There are no "right" answers here—the goal is thoughtful reflection and principled decision-making.</p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-collaboration">
+                    <h1>🤝 Collaboration Scaffold</h1>
+                    
+                    <h2>🏗️ Project Framework</h2>
+                    
+                    <h3>Phase 1: Human Foundation</h3>
+                    <p><strong>Student-Only Work:</strong></p>
+                    <ul>
+                        <li>Define project goals and personal interests</li>
+                        <li>Conduct initial research and form opinions</li>
+                        <li>Create first draft or prototype</li>
+                        <li>Identify areas where AI could add value</li>
+                    </ul>
+
+                    <h3>Phase 2: AI Partnership</h3>
+                    <p><strong>Collaborative Enhancement:</strong></p>
+                    <ul>
+                        <li>Use AI for research expansion and fact-checking</li>
+                        <li>Seek alternative perspectives and counterarguments</li>
+                        <li>Refine language and presentation</li>
+                        <li>Generate additional examples or analogies</li>
+                    </ul>
+
+                    <h3>Phase 3: Human Synthesis</h3>
+                    <p><strong>Student Integration:</strong></p>
+                    <ul>
+                        <li>Critically evaluate AI contributions</li>
+                        <li>Integrate valuable insights while maintaining voice</li>
+                        <li>Make final creative and analytical decisions</li>
+                        <li>Prepare attribution and reflection notes</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <h3>🎯 Success Indicators</h3>
+                        <ul>
+                            <li>Student voice remains distinct and authentic</li>
+                            <li>AI contributions are clearly identified</li>
+                            <li>Final work exceeds what either could produce alone</li>
+                            <li>Student can articulate their collaborative process</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-reflection">
+                    <h1>🪞 Reflection Framework</h1>
+                    
+                    <h2>📊 Regular Check-ins</h2>
+                    
+                    <h3>Daily Micro-Reflections (2-3 minutes)</h3>
+                    <ul>
+                        <li>What did I learn about myself as a learner today?</li>
+                        <li>How did AI help or hinder my thinking?</li>
+                        <li>What questions emerged from our collaboration?</li>
+                    </ul>
+
+                    <h3>Weekly Deep Dives (10-15 minutes)</h3>
+                    <ul>
+                        <li>How is my relationship with AI evolving?</li>
+                        <li>What patterns do I notice in my collaborative process?</li>
+                        <li>What aspects of learning feel most authentically "mine"?</li>
+                        <li>How might I improve my prompting and partnership skills?</li>
+                    </ul>
+
+                    <h3>Project Culminations (20-30 minutes)</h3>
+                    <ul>
+                        <li>How did this collaboration change my understanding of the topic?</li>
+                        <li>What would have been impossible without AI? What was uniquely human?</li>
+                        <li>How do I want to grow as a collaborative learner?</li>
+                    </ul>
+
+                    <div class="highlight-box">
+                        <h3>🌱 Growth Mindset Prompts</h3>
+                        <p>Frame reflections around growth rather than judgment. Focus on learning, curiosity, and evolving partnership rather than "right" or "wrong" ways to collaborate.</p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-onboarding">
+                    <h1>👋 Teacher Onboarding Guide</h1>
+                    
+                    <h2>🚀 Welcome to AI Co-Evolution Education</h2>
+                    <p>This guide will help you confidently integrate AI collaboration into your teaching practice while maintaining the sacred nature of human learning and creativity.</p>
+
+                    <h2>📚 Before Your First Class</h2>
+                    
+                    <h3>1. Develop Your Own AI Relationship</h3>
+                    <ul>
+                        <li>Spend time experimenting with AI tools yourself</li>
+                        <li>Notice what feels authentic vs. artificial in your collaborations</li>
+                        <li>Develop comfort with the technology before introducing it to students</li>
+                    </ul>
+
+                    <h3>2. Establish Your Teaching Philosophy</h3>
+                    <ul>
+                        <li>How do you define student authorship and authenticity?</li>
+                        <li>What role should AI play in learning and assessment?</li>
+                        <li>How will you handle attribution and academic integrity?</li>
+                    </ul>
+
+                    <h3>3. Prepare Your Classroom Environment</h3>
+                    <ul>
+                        <li>Ensure reliable internet and device access</li>
+                        <li>Set up accounts and access protocols</li>
+                        <li>Create physical spaces that support both individual and collaborative work</li>
+                    </ul>
+
+                    <h2>🎯 First Week Implementation</h2>
+                    
+                    <h3>Introduce the Partnership Mindset</h3>
+                    <p>Begin not with tools, but with philosophy. Help students understand that they are entering into a creative partnership that should amplify, not replace, their thinking.</p>
+
+                    <h3>Establish Community Guidelines</h3>
+                    <p>Co-create classroom norms around AI use, focusing on transparency, integrity, and mutual respect for both human and artificial intelligence.</p>
+
+                    <div class="highlight-box">
+                        <h3>⚡ Quick Start Tips</h3>
+                        <ul>
+                            <li>Start small with low-stakes activities</li>
+                            <li>Model your own AI collaboration process</li>
+                            <li>Celebrate authentic student voice, not AI proficiency</li>
+                            <li>Make reflection and discussion central to the experience</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-ethics">
+                    <h1>⚖️ Ethical Framework</h1>
+                    
+                    <h2>🏛️ Foundational Principles</h2>
+                    
+                    <h3>1. Sacred Partnership</h3>
+                    <p>The relationship between human and artificial intelligence is not transactional but collaborative. Both parties contribute unique strengths to the learning process.</p>
+                    
+                    <h3>2. Student Authorship</h3>
+                    <p>Students remain the authors of their learning journey. AI serves as collaborator, not ghost writer. The student's voice, perspective, and creative decisions should be central to any work produced.</p>
+                    
+                    <h3>3. Transparent Attribution</h3>
+                    <p>All AI contributions should be clearly identified and attributed. This transparency serves learning, not judgment.</p>
+                    
+                    <h3>4. Regenerative Growth</h3>
+                    <p>The collaboration should enhance human capability and understanding while contributing to the development of more beneficial AI systems.</p>
+
+                    <h2>🎭 Handling Ethical Dilemmas</h2>
+                    
+                    <h3>Scenario 1: The Impressive AI-Generated Essay</h3>
+                    <p><strong>Situation:</strong> A student submits work that's clearly AI-generated but exceptionally well-written.</p>
+                    <p><strong>Approach:</strong> Focus on process, not product. Engage in conversation about the collaborative process and help the student find their authentic contribution.</p>
+                    
+                    <h3>Scenario 2: The Struggling Student's AI Dependency</h3>
+                    <p><strong>Situation:</strong> A student relies heavily on AI for all aspects of their work.</p>
+                    <p><strong>Approach:</strong> Scaffold the human-first process. Help the student identify their unique interests, questions, and perspectives before engaging AI collaboration.</p>
+                    
+                    <h3>Scenario 3: The AI-Resistant Student</h3>
+                    <p><strong>Situation:</strong> A student refuses to engage with AI tools.</p>
+                    <p><strong>Approach:</strong> Honor their choice while ensuring they understand the collaborative potential. Offer alternative pathways to meet learning objectives.</p>
+
+                    <div class="highlight-box">
+                        <h3>🌟 Remember</h3>
+                        <p>Ethical AI use in education is not about perfect adherence to rules, but about thoughtful, principled decision-making that honors both human dignity and technological potential.</p>
+                    </div>
+                </div>
+
+                <div class="content-section" id="content-troubleshooting">
+                    <h1>🔧 Troubleshooting Guide</h1>
+                    
+                    <h2>⚠️ Common Challenges & Solutions</h2>
+                    
+                    <h3>🤖 "The AI isn't giving good responses"</h3>
+                    <p><strong>Likely Issue:</strong> Unclear or too-broad prompting</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Teach students to be specific about context and desired outcome</li>
+                        <li>Model effective prompting strategies</li>
+                        <li>Encourage iterative conversation rather than single queries</li>
+                        <li>Help students understand AI's need for clear instructions</li>
+                    </ul>
+                    
+                    <h3>📝 "Students are just copying AI responses"</h3>
+                    <p><strong>Likely Issue:</strong> Lack of understanding about collaboration process</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Reinforce the human-first approach to all projects</li>
+                        <li>Require process documentation and reflection</li>
+                        <li>Focus assessment on thinking process, not just final product</li>
+                        <li>Model how to critically evaluate and integrate AI suggestions</li>
+                    </ul>
+                    
+                    <h3>🎭 "This feels like cheating"</h3>
+                    <p><strong>Likely Issue:</strong> Traditional academic integrity frameworks don't account for AI collaboration</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Reframe the conversation around collaboration vs. cheating</li>
+                        <li>Establish clear attribution and transparency expectations</li>
+                        <li>Focus on learning and growth rather than rule-following</li>
+                        <li>Help students understand the difference between collaboration and replacement</li>
+                    </ul>
+                    
+                    <h3>⚡ "Students are becoming too dependent on AI"</h3>
+                    <p><strong>Likely Issue:</strong> Skipping human-first foundation work</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul>
+                        <li>Always begin projects with human-only ideation and planning</li>
+                        <li>Create regular AI-free reflection and synthesis opportunities</li>
+                        <li>Celebrate uniquely human insights and perspectives</li>
+                        <li>Teach students to recognize when human thinking is most valuable</li>
+                    </ul>
+
+                    <h2>🆘 Emergency Protocols</h2>
+                    
+                    <h3>Technology Failure</h3>
+                    <p>Always have analog backup activities that maintain learning objectives without requiring AI access.</p>
+                    
+                    <h3>Inappropriate AI Responses</h3>
+                    <p>Use as teaching moments for critical evaluation and AI limitations. Discuss why certain responses are problematic.</p>
+                    
+                    <h3>Student Resistance or Anxiety</h3>
+                    <p>Honor student concerns while providing support. Not every student needs to use AI in the same way or to the same extent.</p>
+
+                    <div class="highlight-box">
+                        <h3>📞 When to Seek Support</h3>
+                        <p>If challenges persist beyond these common scenarios, reach out to colleagues, administration, or the platform community. Collaborative problem-solving models the partnership approach we want students to learn.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            player: {
+                name: 'Learning Apprentice',
+                class: 'Knowledge Seeker',
+                level: 1,
+                exp: 0,
+                maxExp: 100,
+                health: 100,
+                maxHealth: 100,
+                mana: 50,
+                maxMana: 50,
+                achievements: new Set(),
+                articlesRead: 0,
+                filesExplored: 0,
+                avatar: '🎓'
+            },
+            sidebarCollapsed: false,
+            currentContent: 'readme',
+            expandedFolders: new Set(['education']),
+            quests: [
+                {
+                    id: 'explore-regenerative',
+                    title: '🌱 Explore Regenerative Learning',
+                    description: 'Visit classroom tools section',
+                    progress: 0,
+                    maxProgress: 1,
+                    reward: { exp: 50, achievement: 'explorer' }
+                },
+                {
+                    id: 'understand-partnership',
+                    title: '🤝 Understand AI Partnership',
+                    description: 'Read about sacred partnership',
+                    progress: 0,
+                    maxProgress: 3,
+                    reward: { exp: 75, achievement: 'collaborator' }
+                },
+                {
+                    id: 'discover-sovereignty',
+                    title: '👑 Discover Creative Sovereignty',
+                    description: 'Learn about student authorship',
+                    progress: 0,
+                    maxProgress: 2,
+                    reward: { exp: 100, achievement: 'scholar' }
+                }
+            ]
+        };
+
+        const classProgression = [
+            { level: 1, name: 'Learning Apprentice', class: 'Knowledge Seeker', avatar: '🎓' },
+            { level: 3, name: 'Study Adept', class: 'Information Gatherer', avatar: '📖' },
+            { level: 5, name: 'Knowledge Weaver', class: 'Pattern Recognizer', avatar: '🧠' },
+            { level: 8, name: 'Wisdom Keeper', class: 'Insight Generator', avatar: '🔮' },
+            { level: 10, name: 'Learning Master', class: 'Knowledge Architect', avatar: '🏛️' },
+            { level: 15, name: 'Education Sage', class: 'Transformation Catalyst', avatar: '⚡' },
+            { level: 20, name: 'Planetary Teacher', class: 'Evolution Guide', avatar: '🌍' }
+        ];
+
+        // File tree data
+        const fileTreeData = {
+            name: 'education',
+            type: 'folder',
+            icon: '📁',
+            children: [
+                { name: 'README.md', type: 'file', icon: '📄', content: 'readme' },
+                {
+                    name: 'classroom-tools',
+                    type: 'folder',
+                    icon: '📁',
+                    children: [
+                        {
+                            name: 'lesson-plans',
+                            type: 'folder',
+                            icon: '📁',
+                            children: [
+                                { name: 'starter-pack.md', type: 'file', icon: '📄', content: 'starter-pack' },
+                                { name: 'ai-writing-workshop.md', type: 'file', icon: '📄', content: 'writing-workshop' },
+                                { name: 'ethical-ai-discussion.md', type: 'file', icon: '📄', content: 'ethical-discussion' }
+                            ]
+                        },
+                        {
+                            name: 'project-templates',
+                            type: 'folder',
+                            icon: '📁',
+                            children: [
+                                { name: 'collaboration-scaffold.md', type: 'file', icon: '📄', content: 'collaboration' },
+                                { name: 'reflection-framework.md', type: 'file', icon: '📄', content: 'reflection' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: 'teacher-resources',
+                    type: 'folder',
+                    icon: '📁',
+                    children: [
+                        { name: 'onboarding-guide.md', type: 'file', icon: '📄', content: 'onboarding' },
+                        { name: 'ethical-framework.md', type: 'file', icon: '📄', content: 'ethics' },
+                        { name: 'troubleshooting-guide.md', type: 'file', icon: '📄', content: 'troubleshooting' }
+                    ]
+                }
+            ]
+        };
+
+        // Initialize the application
+        function init() {
+            renderFileTree();
+            renderQuests();
+            updatePlayerDisplay();
+            setupEventListeners();
+            grantAchievement('first-visit');
+            addExp(25, 'Starting your learning journey!');
+        }
+
+        // Render the file tree
+        function renderFileTree() {
+            const fileTreeElement = document.getElementById('fileTree');
+            fileTreeElement.innerHTML = renderTreeNode(fileTreeData, '');
+        }
+
+        // Render a tree node
+        function renderTreeNode(node, path) {
+            const fullPath = path ? `${path}/${node.name}` : node.name;
+            const isExpanded = gameState.expandedFolders.has(fullPath);
+            
+            let html = '<div class="tree-node">';
+            
+            if (node.type === 'folder') {
+                html += `
+                    <div class="tree-item" onclick="toggleFolder('${fullPath}')">
+                        <span class="tree-icon">${isExpanded ? '📂' : '📁'}</span>
+                        <span>${node.name}</span>
+                    </div>
+                `;
+                
+                if (node.children && isExpanded) {
+                    html += `<div class="tree-children">`;
+                    for (const child of node.children) {
+                        html += renderTreeNode(child, fullPath);
+                    }
+                    html += `</div>`;
+                }
+            } else {
+                const isActive = gameState.currentContent === node.content;
+                html += `
+                    <div class="tree-item ${isActive ? 'active' : ''}" onclick="showContent('${node.content}')">
+                        <span class="tree-icon">${node.icon}</span>
+                        <span>${node.name}</span>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Toggle folder expansion
+        function toggleFolder(path) {
+            if (gameState.expandedFolders.has(path)) {
+                gameState.expandedFolders.delete(path);
+            } else {
+                gameState.expandedFolders.add(path);
+            }
+            renderFileTree();
+        }
+
+        // Show content section
+        function showContent(contentId) {
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected content
+            const contentElement = document.getElementById(`content-${contentId}`);
+            if (contentElement) {
+                contentElement.classList.add('active');
+                gameState.currentContent = contentId;
+                
+                // Update file tree
+                renderFileTree();
+                
+                // Award experience and check for quest progress
+                gameState.player.articlesRead++;
+                addExp(10, 'Reading educational content');
+                updateQuestProgress(contentId);
+                updatePlayerDisplay();
+            }
+        }
+
+        // Render quests
+        function renderQuests() {
+            const questContainer = document.getElementById('questContainer');
+            questContainer.innerHTML = gameState.quests.map(quest => `
+                <div class="quest">
+                    <div class="quest-title">${quest.title}</div>
+                    <div class="quest-desc">${quest.description}</div>
+                    <div class="quest-progress">
+                        <div class="quest-progress-fill" style="width: ${(quest.progress / quest.maxProgress) * 100}%"></div>
+                    </div>
+                    <div class="quest-reward">Reward: ${quest.reward.exp} EXP</div>
+                </div>
+            `).join('');
+        }
+
+        // Update quest progress
+        function updateQuestProgress(contentId) {
+            gameState.quests.forEach(quest => {
+                if (quest.id === 'explore-regenerative' && (contentId.includes('starter') || contentId.includes('writing') || contentId.includes('ethical'))) {
+                    if (quest.progress < quest.maxProgress) {
+                        quest.progress++;
+                        if (quest.progress >= quest.maxProgress) {
+                            completeQuest(quest);
+                        }
+                    }
+                } else if (quest.id === 'understand-partnership' && (contentId.includes('collaboration') || contentId.includes('reflection') || contentId.includes('ethics'))) {
+                    if (quest.progress < quest.maxProgress) {
+                        quest.progress++;
+                        if (quest.progress >= quest.maxProgress) {
+                            completeQuest(quest);
+                        }
+                    }
+                } else if (quest.id === 'discover-sovereignty' && (contentId.includes('onboarding') || contentId.includes('troubleshooting'))) {
+                    if (quest.progress < quest.maxProgress) {
+                        quest.progress++;
+                        if (quest.progress >= quest.maxProgress) {
+                            completeQuest(quest);
+                        }
+                    }
+                }
+            });
+            renderQuests();
+        }
+
+        // Complete quest
+        function completeQuest(quest) {
+            addExp(quest.reward.exp, `Completed quest: ${quest.title}`);
+            if (quest.reward.achievement) {
+                grantAchievement(quest.reward.achievement);
+            }
+            showNotification(`🎉 Quest completed: ${quest.title}!`, 'achievement');
+        }
+
+        // Add experience points
+        function addExp(amount, reason) {
+            let newExp = gameState.player.exp + amount;
+            let newLevel = gameState.player.level;
+            let newMaxExp = gameState.player.maxExp;
+
+            while (newExp >= newMaxExp) {
+                newExp -= newMaxExp;
+                newLevel++;
+                newMaxExp = Math.floor(newMaxExp * 1.5);
+                
+                // Level up notification
+                showNotification(`🎉 Level Up! You are now level ${newLevel}!`, 'achievement');
+                
+                // Update class progression
+                const progression = classProgression.find(p => p.level <= newLevel);
+                if (progression && progression.level === newLevel) {
+                    gameState.player.name = progression.name;
+                    gameState.player.class = progression.class;
+                    gameState.player.avatar = progression.avatar;
+                    showNotification(`🌟 Class evolution: ${progression.name}!`, 'achievement');
+                }
+            }
+
+            gameState.player.exp = newExp;
+            gameState.player.level = newLevel;
+            gameState.player.maxExp = newMaxExp;
+
+            showNotification(`+${amount} EXP: ${reason}`, 'exp');
+            updatePlayerDisplay();
+        }
+
+        // Grant achievement
+        function grantAchievement(achievementId) {
+            if (!gameState.player.achievements.has(achievementId)) {
+                gameState.player.achievements.add(achievementId);
+                const achievementElement = document.getElementById(`achievement-${achievementId}`);
+                if (achievementElement) {
+                    achievementElement.classList.remove('locked');
+                    showNotification(`🏆 Achievement Unlocked: ${achievementElement.title}!`, 'achievement');
+                }
+            }
+        }
+
+        // Update player display
+        function updatePlayerDisplay() {
+            document.getElementById('playerName').textContent = gameState.player.name;
+            document.getElementById('playerClass').textContent = gameState.player.class;
+            document.getElementById('playerLevel').textContent = gameState.player.level;
+            document.getElementById('playerAvatar').textContent = gameState.player.avatar;
+            document.getElementById('currentExp').textContent = gameState.player.exp;
+            document.getElementById('maxExp').textContent = gameState.player.maxExp;
+            document.getElementById('articlesRead').textContent = gameState.player.articlesRead;
+            document.getElementById('filesExplored').textContent = gameState.player.filesExplored;
+            
+            const expPercentage = (gameState.player.exp / gameState.player.maxExp) * 100;
+            document.getElementById('expFill').style.width = `${expPercentage}%`;
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notificationsContainer = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            notificationsContainer.appendChild(notification);
+            
+            setTimeout(() => {
+                notificationsContainer.removeChild(notification);
+            }, 4000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('toggleSidebar').addEventListener('click', () => {
+                gameState.sidebarCollapsed = !gameState.sidebarCollapsed;
+                const sidebar = document.getElementById('sidebar');
+                if (gameState.sidebarCollapsed) {
+                    sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
